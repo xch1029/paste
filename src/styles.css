@@ -99,12 +99,7 @@ button {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 42%);
 }
 
-.eyebrow {
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-size: 11px;
-}
+
 
 .headline {
   margin: 0;
@@ -113,12 +108,7 @@ button {
   line-height: 0.95;
 }
 
-.lede {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.7;
-  font-size: 14px;
-}
+
 
 .metric-grid {
   display: grid;

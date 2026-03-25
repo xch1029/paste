@@ -182,11 +182,8 @@ onBeforeUnmount(() => {
       <div class="layout">
         <aside class="sidebar">
           <div>
-            <p class="eyebrow">剪贴板档案</p>
-            <h1 class="headline">paste</h1>
-            <p class="lede">
-              一个以键盘操作为核心的剪贴板面板，支持文本与图片。你可以快速搜索、置顶、找回，并一键把内容重新送回系统剪贴板。
-            </p>
+            <h1 class="headline">剪贴板档案</h1>
+           
           </div>
 
           <div class="metric-grid">
