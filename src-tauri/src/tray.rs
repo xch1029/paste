@@ -14,7 +14,7 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         .text("quit", "Quit")
         .build()?;
 
-    TrayIconBuilder::new()
+    let mut tray_builder = TrayIconBuilder::new()
         .menu(&menu)
         .tooltip("paste")
         .show_menu_on_left_click(false)
@@ -50,8 +50,13 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
             {
                 let _ = toggle_main_window(&tray.app_handle());
             }
-        })
-        .build(app)?;
+        });
+
+    if let Some(icon) = app.default_window_icon() {
+        tray_builder = tray_builder.icon(icon.clone());
+    }
+
+    tray_builder.build(app)?;
 
     Ok(())
 }
