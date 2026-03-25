@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import type {
   ActionResponse,
   AppStatus,
@@ -35,6 +36,10 @@ export function setMonitoringPaused(paused: boolean) {
   return invoke<AppStatus>("set_monitoring_paused", { paused });
 }
 
-export function hidePanel() {
-  return invoke("hide_panel");
+export function hideCurrentWindow() {
+  return invoke("hide_window", { label: getCurrentWebviewWindow().label });
+}
+
+export function syncPickerLayout() {
+  return invoke("sync_picker_layout");
 }

@@ -31,7 +31,7 @@
 - Frontend now renders a clipboard history panel with search, keyboard navigation, pin/delete actions, pause, and clear-history controls
 - Rust backend now manages clipboard capture, SQLite persistence, tray integration, and global hotkey handling
 - Clipboard history currently supports `text` and `image`
-- The app is designed as a tray-resident utility with `Ctrl+Shift+V` as the default global hotkey
+- The app is designed as a tray-resident utility with `Ctrl+Shift+V` for the management window and `Alt+V` for the bottom quick picker
 - Data is stored locally in SQLite plus an app-data image cache directory
 - `@tauri-apps/plugin-opener` is installed and enabled
 - `node_modules/` and `src-tauri/target/` already exist locally

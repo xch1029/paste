@@ -9,6 +9,7 @@ mod windowing;
 use app_state::AppState;
 use models::{ActionResponse, AppStatus, HistoryResponse};
 use tauri::{AppHandle, Emitter, Manager, State};
+use windowing::{hide_window_by_label, sync_picker_window, MAIN_WINDOW_LABEL, PICKER_WINDOW_LABEL};
 
 #[tauri::command]
 async fn get_history(state: State<'_, AppState>, query: Option<String>) -> Result<HistoryResponse, String> {
@@ -102,11 +103,13 @@ async fn set_monitoring_paused(
 }
 
 #[tauri::command]
-fn hide_panel(app: AppHandle) -> Result<(), String> {
-    let window = app
-        .get_webview_window("main")
-        .ok_or_else(|| "main window missing".to_string())?;
-    windowing::hide_main_window(&window).map_err(|error| error.to_string())
+fn hide_window(app: AppHandle, label: String) -> Result<(), String> {
+    hide_window_by_label(&app, &label).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn sync_picker_layout(app: AppHandle) -> Result<(), String> {
+    sync_picker_window(&app).map_err(|error| error.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -127,7 +130,10 @@ pub fn run() {
             tray::setup_window_lifecycle(app.handle());
             clipboard_monitor::start_clipboard_monitor(app.handle().clone(), state);
 
-            if let Some(window) = app.get_webview_window("main") {
+            if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
+                window.hide()?;
+            }
+            if let Some(window) = app.get_webview_window(PICKER_WINDOW_LABEL) {
                 window.hide()?;
             }
 
@@ -141,7 +147,8 @@ pub fn run() {
             delete_item,
             clear_history,
             set_monitoring_paused,
-            hide_panel
+            hide_window,
+            sync_picker_layout
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

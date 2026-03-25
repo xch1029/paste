@@ -8,7 +8,8 @@ use sqlx::{query, query_as, SqlitePool};
 use std::path::{Path, PathBuf};
 
 const HISTORY_LIMIT: i64 = 500;
-const HOTKEY_LABEL: &str = "Ctrl+Shift+V";
+const MANAGE_HOTKEY_LABEL: &str = "Ctrl+Shift+V";
+const PICKER_HOTKEY_LABEL: &str = "Alt+V";
 
 #[derive(Clone)]
 pub struct AppStore {
@@ -234,7 +235,8 @@ impl AppStore {
         Ok(AppStatus {
             monitoring_paused,
             history_count: self.history_count().await?,
-            hotkey: HOTKEY_LABEL.to_string(),
+            manage_hotkey: MANAGE_HOTKEY_LABEL.to_string(),
+            picker_hotkey: PICKER_HOTKEY_LABEL.to_string(),
         })
     }
 

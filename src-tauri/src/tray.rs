@@ -1,17 +1,18 @@
 use crate::app_state::AppState;
-use crate::windowing::{hide_main_window, toggle_main_window};
+use crate::windowing::{hide_window_by_label, toggle_main_window, toggle_picker_window, MAIN_WINDOW_LABEL, PICKER_WINDOW_LABEL};
 use tauri::menu::MenuBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager};
 
 pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
     let menu = MenuBuilder::new(app)
-        .text("toggle_panel", "Show Clipboard")
+        .text("show_management", "打开管理页")
+        .text("show_picker", "打开快速列表")
         .separator()
-        .text("toggle_monitoring", "Pause Monitoring")
-        .text("clear_history", "Clear History")
+        .text("toggle_monitoring", "暂停/恢复监听")
+        .text("clear_history", "清空历史")
         .separator()
-        .text("quit", "Quit")
+        .text("quit", "退出")
         .build()?;
 
     let mut tray_builder = TrayIconBuilder::new()
@@ -19,8 +20,11 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
         .tooltip("paste")
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {
-            "toggle_panel" => {
+            "show_management" => {
                 let _ = toggle_main_window(app);
+            }
+            "show_picker" => {
+                let _ = toggle_picker_window(app);
             }
             "toggle_monitoring" => {
                 let state = app.state::<AppState>();
@@ -48,7 +52,7 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
                 ..
             } = event
             {
-                let _ = toggle_main_window(&tray.app_handle());
+                let _ = toggle_picker_window(&tray.app_handle());
             }
         });
 
@@ -62,13 +66,16 @@ pub fn create_tray(app: &AppHandle) -> tauri::Result<()> {
 }
 
 pub fn setup_window_lifecycle(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("main") {
-        let managed_window = window.clone();
-        window.on_window_event(move |event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                api.prevent_close();
-                let _ = hide_main_window(&managed_window);
-            }
-        });
+    for label in [MAIN_WINDOW_LABEL, PICKER_WINDOW_LABEL] {
+        if let Some(window) = app.get_webview_window(label) {
+            let app_handle = app.clone();
+            let window_label = label.to_string();
+            window.on_window_event(move |event| {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = hide_window_by_label(&app_handle, &window_label);
+                }
+            });
+        }
     }
 }

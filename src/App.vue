@@ -14,7 +14,7 @@ import {
   deleteItem,
   getAppState,
   getHistory,
-  hidePanel,
+  hideCurrentWindow,
   setMonitoringPaused,
   toggleItemPin,
 } from "./lib/commands";
@@ -25,7 +25,8 @@ const items = ref<ClipboardItem[]>([]);
 const status = ref<AppStatus>({
   monitoringPaused: false,
   historyCount: 0,
-  hotkey: "Ctrl+Shift+V",
+  manageHotkey: "Ctrl+Shift+V",
+  pickerHotkey: "Alt+V",
 });
 const activeIndex = ref(0);
 const loading = ref(true);
@@ -101,8 +102,8 @@ async function handlePauseToggle() {
   const next = !status.value.monitoringPaused;
   status.value = await setMonitoringPaused(next);
   lastAction.value = next
-    ? "已暂停剪贴板监听。"
-    : "已恢复剪贴板监听。";
+    ? `已暂停剪贴板监听。${status.value.manageHotkey} 仍可打开管理页，${status.value.pickerHotkey} 仍可打开快速列表。`
+    : `已恢复剪贴板监听。${status.value.manageHotkey} 打开管理页，${status.value.pickerHotkey} 打开快速列表。`;
 }
 
 async function handleClearHistory() {
@@ -112,7 +113,7 @@ async function handleClearHistory() {
 }
 
 async function handleHide() {
-  await hidePanel();
+  await hideCurrentWindow();
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -192,9 +193,15 @@ onBeforeUnmount(() => {
               <strong class="metric-card__value">{{ status.historyCount }}</strong>
             </div>
             <div class="metric-card">
-              <span class="metric-card__label">全局快捷键</span>
+              <span class="metric-card__label">管理页快捷键</span>
               <strong class="metric-card__value metric-card__value-small">
-                {{ status.hotkey }}
+                {{ status.manageHotkey }}
+              </strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-card__label">快速列表快捷键</span>
+              <strong class="metric-card__value metric-card__value-small">
+                {{ status.pickerHotkey }}
               </strong>
             </div>
             <div class="metric-card">
@@ -218,6 +225,14 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="legend">
+            <div class="legend__row">
+              <span>{{ status.manageHotkey }}</span>
+              <span>打开管理页</span>
+            </div>
+            <div class="legend__row">
+              <span>{{ status.pickerHotkey }}</span>
+              <span>打开快速列表</span>
+            </div>
             <div class="legend__row">
               <span>方向键</span>
               <span>移动选中项</span>
@@ -259,7 +274,7 @@ onBeforeUnmount(() => {
               <div>
                 <h2 class="board__title">剪贴板回收站</h2>
                 <p class="board__subtitle">
-                  置顶常用内容，浏览最近复制记录，并用一次按键把任意内容重新激活。
+                  置顶常用内容，浏览最近复制记录，并用 {{ status.manageHotkey }} / {{ status.pickerHotkey }} 进入不同入口。
                 </p>
               </div>
             </header>

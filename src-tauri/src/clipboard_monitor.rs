@@ -48,6 +48,10 @@ impl ClipboardHandler for ClipboardMonitor {
             let app = self.app.clone();
             let state = self.state.clone();
             tauri::async_runtime::block_on(async move {
+                if state.monitoring_paused() {
+                    return;
+                }
+
                 if state.store().upsert_text(text).await.ok().flatten().is_some() {
                     let _ = app.emit("clipboard-history-changed", true);
                     let _ = app.emit("clipboard-state-changed", true);
@@ -60,6 +64,10 @@ impl ClipboardHandler for ClipboardMonitor {
             let app = self.app.clone();
             let state = self.state.clone();
             tauri::async_runtime::block_on(async move {
+                if state.monitoring_paused() {
+                    return;
+                }
+
                 if state.store().upsert_image(image).await.ok().flatten().is_some() {
                     let _ = app.emit("clipboard-history-changed", true);
                     let _ = app.emit("clipboard-state-changed", true);

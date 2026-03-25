@@ -39,7 +39,8 @@ pub struct HistoryResponse {
 pub struct AppStatus {
     pub monitoring_paused: bool,
     pub history_count: i64,
-    pub hotkey: String,
+    pub manage_hotkey: String,
+    pub picker_hotkey: String,
 }
 
 #[derive(Debug, Clone, Serialize)]

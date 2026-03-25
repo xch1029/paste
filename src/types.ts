@@ -23,7 +23,8 @@ export interface HistoryResponse {
 export interface AppStatus {
   monitoringPaused: boolean;
   historyCount: number;
-  hotkey: string;
+  manageHotkey: string;
+  pickerHotkey: string;
 }
 
 export interface ActionResponse {
