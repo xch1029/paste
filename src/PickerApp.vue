@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { listen } from "@tauri-apps/api/event";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { copyItem, getHistory, hideCurrentWindow, syncPickerLayout } from "./lib/commands";
 import type { ClipboardItem } from "./types";
 
@@ -8,7 +8,13 @@ const items = ref<ClipboardItem[]>([]);
 const loading = ref(true);
 const errorMessage = ref("");
 const copiedItemId = ref<number | null>(null);
+const trackRef = ref<HTMLElement | null>(null);
 const unsubscribers: Array<() => void> = [];
+
+async function resetTrackPosition() {
+  await nextTick();
+  trackRef.value?.scrollTo({ left: 0, behavior: "auto" });
+}
 
 async function refreshHistory() {
   try {
@@ -49,8 +55,13 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 
+function onWindowFocus() {
+  void resetTrackPosition();
+}
+
 onMounted(async () => {
   window.addEventListener("keydown", onKeydown);
+  window.addEventListener("focus", onWindowFocus);
 
   const historyListener = await listen("clipboard-history-changed", () => {
     void refreshHistory();
@@ -59,10 +70,12 @@ onMounted(async () => {
   unsubscribers.push(historyListener);
 
   await refreshHistory();
+  await resetTrackPosition();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", onKeydown);
+  window.removeEventListener("focus", onWindowFocus);
   unsubscribers.forEach((unlisten) => unlisten());
 });
 </script>
@@ -83,7 +96,7 @@ onBeforeUnmount(() => {
         <span>复制一些文本或图片后，这里会出现最近历史。</span>
       </div>
 
-      <section v-else class="picker-track">
+      <section v-else ref="trackRef" class="picker-track">
         <article
           v-for="item in items"
           :key="item.id"
